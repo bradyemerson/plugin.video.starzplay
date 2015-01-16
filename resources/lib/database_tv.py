@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os.path
-from datetime import date, datetime
-import time
+from datetime import date
 from sqlite3 import dbapi2 as sqlite
 
 import simplejson as json
@@ -436,8 +435,12 @@ def update_tv(force=False):
 
         directors = ','.join(directors_list)
 
+        trailer = None
+        if 'sportURL' in series:
+            trailer = series['spotURL']
+
         insert_series(content_id=series['contentId'], title=series['title'], plot=series['logLine'],
-                      trailer=series['spotURL'], studio=series['studio'], directors=directors, actors=actors,
+                      trailer=trailer, studio=series['studio'], directors=directors, actors=actors,
                       popularity=series['popularity'])
 
         # Season Children
