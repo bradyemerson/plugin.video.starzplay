@@ -58,4 +58,11 @@ def get_play_url(media_id):
     return "{0}/PlayMedia?id={1}".format(WEB_DOMAIN, media_id)
 
 
-
+def parse_mpaa(mpaa):
+    if mpaa == 'PG13':
+        return 'PG-13'
+    elif mpaa == 'NC17':
+        return 'NC-17'
+    elif 'TV' == mpaa[:2]:
+        return 'TV-' + mpaa[2:]
+    return mpaa

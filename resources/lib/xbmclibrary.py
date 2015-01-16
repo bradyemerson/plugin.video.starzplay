@@ -148,8 +148,8 @@ def export_movie(data, makeNFO=True):
         if data['genres']:
             for genre in data['genres'].split(','):
                 nfo += '<genre>' + genre + '</genre>'
-        if data['director']:
-            nfo += '<director>' + ' / '.join(data['director'].split(',')) + '</director>'
+        if data['directors']:
+            nfo += '<director>' + ' / '.join(data['directors'].split(',')) + '</director>'
         if data['actors']:
             for actor in data['actors'].split(','):
                 nfo += '<actor>'
@@ -212,8 +212,8 @@ def _export_episodes(episodes, season_dir, makeNFO=True):
             if data['genres']:
                 for genre in data['genres'].split(','):
                     nfo += '<genre>' + genre + '</genre>'
-            if data['director']:
-                nfo += '<director>' + ' / '.join(data['director'].split(',')) + '</director>'
+            if data['directors']:
+                nfo += '<director>' + ' / '.join(data['directors'].split(',')) + '</director>'
             if data['actors']:
                 for actor in data['actors'].split(','):
                     nfo += '<actor>'

@@ -41,7 +41,7 @@ def list_movie_root():
     common.add_directory('MPAA Rating', 'movies', 'list_movie_types', 'MPAA')
     common.add_directory('Directors', 'movies', 'list_movie_types', 'DIRECTORS')
     common.add_directory('Actors', 'movies', 'list_movie_types', 'ACTORS')
-    common.add_directory('Recently Added', 'movies', 'list_movies_recent_filtered', 'ACTORS')
+    # common.add_directory('Recently Added', 'movies', 'list_movies_recent_filtered', 'ACTORS')
     common.add_directory('Watched', 'movies', 'list_movies_watched_filtered')
     xbmcplugin.endOfDirectory(pluginhandle)
 
@@ -177,7 +177,7 @@ def _add_movie_item(data, total=0):
     if data['directors']:
         labels['director'] = ' / '.join(data['directors'].split(','))
     if data['genres']:
-        labels['genres'] = ' / '.join(data['genres'].split(','))
+        labels['genre'] = ' / '.join(data['genres'].split(','))
     if data['actors']:
         labels['cast'] = data['actors'].split(',')
 

@@ -483,11 +483,7 @@ def _json_process_episodes(episode_data, season_content_id):
 
         duration = int(episode['runtime'] / 60)
 
-        mpaa = episode['mpaaRating']
-        if mpaa == 'PG13':
-            mpaa = 'PG-13'
-        elif 'TV' == mpaa[:2]:
-            mpaa = 'TV-' + mpaa[2:]
+        mpaa = db_common.parse_mpaa(episode['mpaaRating'])
 
         actors_list = []
         for actor in episode['actors']:

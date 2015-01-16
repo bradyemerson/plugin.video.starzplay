@@ -274,18 +274,13 @@ def update_movies(force=False):
                 cc_available = movie_json['closedCaption']
                 audio_type = movie_json['audioType']
                 is_hd = movie_json['hd']
+                mpaa = db_common.parse_mpaa(movie_json['mpaaRating'])
 
                 try:
                     date_without_time = movie_json['startDate'][:10]
                     added_date = datetime.strptime(date_without_time, '%Y-%m-%d')
                 except TypeError:
                     added_date = datetime(*(time.strptime(date_without_time, '%Y-%m-%d')[0:6]))
-
-                mpaa = movie_json['mpaaRating']
-                if mpaa == 'PG13':
-                    mpaa = 'PG-13'
-                elif 'TV' == mpaa[:2]:
-                    mpaa = 'TV-' + mpaa[2:]
 
                 actors_list = []
                 for actor in movie_json['actors']:
