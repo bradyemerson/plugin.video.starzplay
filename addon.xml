@@ -13,6 +13,6 @@
     <platform>all</platform>
     <summary lang="en">Starz Play Video Streaming</summary>
     <description lang="en">Movies and Television Shows for Starz Subscribers. This plugin allows you to browse and export to local library the movies and original series available on Starz Play. Viewing is done through the browser via Chrome Launcher plugin.</description>
-    <disclaimer>Some parts of this addon may not be legal in your country of residence - please check with your local laws before installing. Starz Play </disclaimer>
+    <disclaimer>Some parts of this addon may not be legal in your country of residence - please check with your local laws before installing.</disclaimer>
   </extension>
 </addon>
