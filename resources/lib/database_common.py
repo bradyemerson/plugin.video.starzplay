@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 import os.path
 import urllib
-from datetime import datetime
-import time
 
 import common
 

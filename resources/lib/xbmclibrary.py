@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import os.path
 import sys
-import urllib
 import string
 
 import xbmc
@@ -135,7 +134,7 @@ def export_movie(data, makeNFO=True):
             nfo += '<outline>' + data['plot'] + '</outline>'
             nfo += '<plot>' + data['plot'] + '</plot>'
         if data['duration']:
-            nfo += '<runtime>' + data['duration'] + '</runtime>'  ##runtime in minutes
+            nfo += '<runtime>' + str(data['duration']) + '</runtime>'  ##runtime in minutes
             nfo += _stream_details(str(int(data['duration']) * 60), data['is_hd'], has_subtitles=data['cc_available'])
         else:
             nfo += _stream_details('', data['is_hd'], has_subtitles=data['cc_available'])
@@ -199,7 +198,7 @@ def _export_episodes(episodes, season_dir, makeNFO=True):
                 nfo += '<outline>' + data['plot'] + '</outline>'
                 nfo += '<plot>' + data['plot'] + '</plot>'
             if data['duration']:
-                nfo += '<runtime>' + data['duration'] + '</runtime>'  ##runtime in minutes
+                nfo += '<runtime>' + str(data['duration']) + '</runtime>'  ##runtime in minutes
                 nfo += _stream_details(str(int(data['duration']) * 60), data['is_hd'], has_subtitles=data['cc_available'])
             else:
                 nfo += _stream_details('', data['is_hd'], has_subtitles=data['cc_available'])
