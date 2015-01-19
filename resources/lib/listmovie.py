@@ -204,11 +204,11 @@ def _add_movie_item(data, total=0):
         cm_u = sys.argv[0] + '?url={0}&mode=movies&sitemode=unfavor&title={1}'.format(data['content_id'],
                                                                                       urllib.unquote_plus(
                                                                                           data['title']))
-        contextmenu.append((common.localise(39006), 'XBMC.RunPlugin(%s)' % cm_u))
+        contextmenu.append((common.localise(39006).format(database_common.SERVICE_NAME), 'XBMC.RunPlugin(%s)' % cm_u))
     else:
         cm_u = sys.argv[0] + '?url={0}&mode=movies&sitemode=favor&title={1}'.format(data['content_id'],
                                                                                     urllib.unquote_plus(data['title']))
-        contextmenu.append((common.localise(39007), 'XBMC.RunPlugin(%s)' % cm_u))
+        contextmenu.append((common.localise(39007).format(database_common.SERVICE_NAME), 'XBMC.RunPlugin(%s)' % cm_u))
 
     if data['playcount'] > 0:
         cm_u = sys.argv[0] + '?url={0}&mode=movies&sitemode=unwatch'.format(data['content_id'])
