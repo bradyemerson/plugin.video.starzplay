@@ -300,14 +300,36 @@ def get_series(mpaafilter=False, genrefilter=False, yearfilter=False, directorfi
         return c.execute('SELECT DISTINCT * FROM series')
 
 
-def get_series_total_episodes(series_id):
+def get_series_season_count(series_id):
     c = _database.cursor()
-    row = c.execute('''SELECT COUNT(e.content_id) AS total_episodes
-                  FROM episode AS e
-                  JOIN season AS sea ON sea.content_id = e.season_content_id
-                  JOIN series AS ser ON ser.content_id = sea.series_content_id
-                  WHERE ser.content_id = (?)
-                  GROUP BY ser.content_id''', (series_id,)).fetchone()
+    row = c.execute('''SELECT COUNT(sea.content_id) AS total_seasons
+          FROM season AS sea
+          JOIN series AS ser ON ser.content_id = sea.series_content_id
+          WHERE ser.content_id = (?)
+          GROUP BY ser.content_id''', (series_id,)).fetchone()
+    c.close()
+    if row:
+        return row['total_seasons']
+    else:
+        return 0
+
+
+def get_series_episode_count(series_id, filter=None):
+    c = _database.cursor()
+    if filter == 'watched':
+        row = c.execute('''SELECT COUNT(e.content_id) AS total_episodes
+              FROM episode AS e
+              JOIN season AS sea ON sea.content_id = e.season_content_id
+              JOIN series AS ser ON ser.content_id = sea.series_content_id
+              WHERE ser.content_id = (?) AND e.playcount > 0
+              GROUP BY ser.content_id''', (series_id,)).fetchone()
+    else:
+        row = c.execute('''SELECT COUNT(e.content_id) AS total_episodes
+              FROM episode AS e
+              JOIN season AS sea ON sea.content_id = e.season_content_id
+              JOIN series AS ser ON ser.content_id = sea.series_content_id
+              WHERE ser.content_id = (?)
+              GROUP BY ser.content_id''', (series_id,)).fetchone()
     c.close()
     if row:
         return row['total_episodes']
@@ -337,13 +359,20 @@ def get_seasons(series_id):
                         WHERE series_content_id = (?)''', (series_id,))
 
 
-def get_season_total_episodes(season_id):
+def get_season_episode_count(season_id, filter=None):
     c = _database.cursor()
-    row = c.execute('''SELECT COUNT(e.content_id) AS total_episodes
-                  FROM episode AS e
-                  JOIN season AS sea ON sea.content_id = e.season_content_id
-                  WHERE sea.content_id = (?)
-                  GROUP BY sea.content_id''', (season_id,)).fetchone()
+    if filter == 'watched':
+        row = c.execute('''SELECT COUNT(e.content_id) AS total_episodes
+              FROM episode AS e
+              JOIN season AS sea ON sea.content_id = e.season_content_id
+              WHERE sea.content_id = (?) AND e.playcount > 0
+              GROUP BY sea.content_id''', (season_id,)).fetchone()
+    else:
+        row = c.execute('''SELECT COUNT(e.content_id) AS total_episodes
+              FROM episode AS e
+              JOIN season AS sea ON sea.content_id = e.season_content_id
+              WHERE sea.content_id = (?)
+              GROUP BY sea.content_id''', (season_id,)).fetchone()
     c.close()
     if row:
         return row['total_episodes']

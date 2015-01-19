@@ -183,23 +183,11 @@ msgid "Looking up "
 msgstr ""
 
 msgctxt "#39006"
-msgid "Remove from Starz Favorites"
+msgid "Remove from {0} Favorites"
 msgstr ""
 
 msgctxt "#39007"
-msgid "Add to Starz Favorites"
-msgstr ""
-
-msgctxt "#39019"
-msgid "Import"
-msgstr ""
-
-msgctxt "#39020"
-msgid "Select best match: "
-msgstr ""
-
-msgctxt "#39021"
-msgid "USTV VoD - Refresh All TVDB Data"
+msgid "Add to {0} Favorites"
 msgstr ""
 
 msgctxt "#39024"
@@ -208,4 +196,8 @@ msgstr ""
 
 msgctxt "#39025"
 msgid "Add Episode Identifier"
+msgstr ""
+
+msgctxt "#30040"
+msgid "Use Chrome Launcher Kiosk Mode"
 msgstr ""

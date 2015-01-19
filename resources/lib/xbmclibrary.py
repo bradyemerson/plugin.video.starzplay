@@ -63,7 +63,7 @@ def setup_library():
     soup = BeautifulSoup(content)
     video = soup.find("video")
 
-    added_new_paths = False;
+    added_new_paths = False
 
     if len(soup.find_all('name', text=db_common.SERVICE_NAME + ' Movies')) < 1:
         movie_source_tag = soup.new_tag('source')
@@ -101,16 +101,16 @@ def setup_library():
         video.append(tv_source_tag)
         added_new_paths = True
 
-    file = open(source_path, 'w')
-    file.write(str(soup))
-    file.close()
-
     if added_new_paths:
-        common.notification('Added ' + db_common.SERVICE_NAME + ' Folder to Library')
+        file = open(source_path, 'w')
+        file.write(str(soup))
+        file.close()
+
+    return added_new_paths
 
 
 def update_xbmc_library():
-    xbmc.executebuiltin("update_library(video)")
+    xbmc.executebuiltin("UpdateLibrary(video)")
 
 
 def export_movie(data, makeNFO=True):
@@ -139,6 +139,7 @@ def export_movie(data, makeNFO=True):
         else:
             nfo += _stream_details('', data['is_hd'], has_subtitles=data['cc_available'])
         nfo += '<thumb>' + db_common.get_poster(data['content_id']) + '</thumb>'
+        nfo += '<fanart>' + db_common.get_thumb(data['content_id']) + '</fanart>'
         if data['mpaa']:
             nfo += '<mpaa>Rated ' + data['mpaa'] + '</mpaa>'
         if data['studio']:
@@ -159,14 +160,13 @@ def export_movie(data, makeNFO=True):
         _save_file(nfo_file, nfo, MOVIE_PATH)
 
 
-def export_series(series_list):
-    for series in series_list:
-        dirname = os.path.join(TV_SHOWS_PATH, series['title'].replace(':', ''))
-        _create_directory(dirname)
+def export_series(series):
+    dirname = os.path.join(TV_SHOWS_PATH, series['title'].replace(':', ''))
+    _create_directory(dirname)
 
-        seasons = tv_db.get_seasons(series['content_id'])
-        for season in seasons:
-            _export_season(season, dirname)
+    seasons = tv_db.get_seasons(series['content_id'])
+    for season in seasons:
+        _export_season(season, dirname)
 
 
 def _export_season(seasons, series_dir):
@@ -175,52 +175,72 @@ def _export_season(seasons, series_dir):
         _create_directory(dirname)
 
         episodes = tv_db.get_episodes(season['content_id'])
-        _export_episodes(episodes, dirname)
+        for data in episodes:
+            _export_episode(data, dirname)
 
 
-def _export_episodes(episodes, season_dir, makeNFO=True):
-    for data in episodes:
-        filename = 'S%sE%s - %s' % (data['season_num'], str(data['order_rank'])[-2:], _clean_filename(data['title']))
+def _export_episode(data, season_dir, makeNFO=True):
+    filename = 'S{0:02d}E{1:02d} - {2}'.format(data['season_num'], str(data['order_rank'])[-2:],
+                                               _clean_filename(data['title']))
 
-        strm_file = filename + ".strm"
-        u = sys.argv[0] + '?url={0}&mode=tv&sitemode=play_movie&content_id={1}'.format(data['url'], data['content_id'])
-        _save_file(strm_file, u, season_dir)
+    strm_file = filename + ".strm"
+    u = sys.argv[0] + '?url={0}&mode=tv&sitemode=play_movie&content_id={1}'.format(data['url'], data['content_id'])
+    _save_file(strm_file, u, season_dir)
 
-        if makeNFO:
-            nfo_file = filename + ".nfo"
-            nfo = '<episodedetails>'
-            nfo += '<title>' + data['title'] + '</title>'
-            nfo += '<season>' + data['season_num'] + '</season>'
-            nfo += '<episode>' + str(data['order_rank'])[-2:] + '</episode>'
-            if data['year']:
-                nfo += '<year>' + str(data['year']) + '</year>'
-            if data['plot']:
-                nfo += '<outline>' + data['plot'] + '</outline>'
-                nfo += '<plot>' + data['plot'] + '</plot>'
-            if data['duration']:
-                nfo += '<runtime>' + str(data['duration']) + '</runtime>'  ##runtime in minutes
-                nfo += _stream_details(str(int(data['duration']) * 60), data['is_hd'], has_subtitles=data['cc_available'])
-            else:
-                nfo += _stream_details('', data['is_hd'], has_subtitles=data['cc_available'])
-            nfo += '<thumb>' + db_common.get_thumb(data['content_id']) + '</thumb>'
-            if data['mpaa']:
-                nfo += '<mpaa>Rated ' + data['mpaa'] + '</mpaa>'
-            if data['studio']:
-                nfo += '<studio>' + data['studio'] + '</studio>'
-            if data['playcount']:
-                nfo += '<playcount>{0}</playcount>'.format(data['playcount'])
-            if data['genres']:
-                for genre in data['genres'].split(','):
-                    nfo += '<genre>' + genre + '</genre>'
-            if data['directors']:
-                nfo += '<director>' + ' / '.join(data['directors'].split(',')) + '</director>'
-            if data['actors']:
-                for actor in data['actors'].split(','):
-                    nfo += '<actor>'
-                    nfo += '<name>' + actor + '</name>'
-                    nfo += '</actor>'
-            nfo += '</episodedetails>'
-            _save_file(nfo_file, nfo, MOVIE_PATH)
+    if makeNFO:
+        nfo_file = filename + ".nfo"
+        nfo = '<episodedetails>'
+        nfo += '<title>' + data['title'] + '</title>'
+        nfo += '<season>' + data['season_num'] + '</season>'
+        nfo += '<episode>' + str(data['order_rank'])[-2:] + '</episode>'
+        if data['year']:
+            nfo += '<year>' + str(data['year']) + '</year>'
+        if data['plot']:
+            nfo += '<outline>' + data['plot'] + '</outline>'
+            nfo += '<plot>' + data['plot'] + '</plot>'
+        if data['duration']:
+            nfo += '<runtime>' + str(data['duration']) + '</runtime>'  ##runtime in minutes
+            nfo += _stream_details(str(int(data['duration']) * 60), data['is_hd'], has_subtitles=data['cc_available'])
+        else:
+            nfo += _stream_details('', data['is_hd'], has_subtitles=data['cc_available'])
+        nfo += '<thumb>' + db_common.get_thumb(data['content_id']) + '</thumb>'
+        nfo += '<fanart>' + db_common.get_thumb(data['content_id']) + '</fanart>'
+        if data['mpaa']:
+            nfo += '<mpaa>Rated ' + data['mpaa'] + '</mpaa>'
+        if data['studio']:
+            nfo += '<studio>' + data['studio'] + '</studio>'
+        if data['playcount']:
+            nfo += '<playcount>{0}</playcount>'.format(data['playcount'])
+        if data['genres']:
+            for genre in data['genres'].split(','):
+                nfo += '<genre>' + genre + '</genre>'
+        if data['directors']:
+            nfo += '<director>' + ' / '.join(data['directors'].split(',')) + '</director>'
+        if data['actors']:
+            for actor in data['actors'].split(','):
+                nfo += '<actor>'
+                nfo += '<name>' + actor + '</name>'
+                nfo += '</actor>'
+        nfo += '</episodedetails>'
+        _save_file(nfo_file, nfo, MOVIE_PATH)
+
+
+def complete_export(added_folders):
+    if added_folders:
+        response = xbmcgui.Dialog() \
+            .yesno("Added {0} Folders to Video Sources".format(db_common.SERVICE_NAME),
+                   "Two steps are required to complete the process:",
+                   "1. Kodi must be restarted",
+                   "2. After restarting, you must configure the content type of the {0} folders in the File section".format(
+                       db_common.SERVICE_NAME),
+                   nolabel="Restart Kodi Later", yeslabel="Quit Kodi Now"
+        )
+        if response == 'Yes':
+            xbmc.executebuiltin('Quit')
+    else:
+        common.notification('Export Complete')
+        if common.get_setting('updatelibraryafterexport') == 'true':
+            update_xbmc_library()
 
 
 def _save_file(filename, data, dir):

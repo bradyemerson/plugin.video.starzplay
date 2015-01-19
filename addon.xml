@@ -4,15 +4,15 @@
     <import addon="xbmc.python" version="2.1.0"/>
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
     <import addon="script.module.simplejson" version="3.3.0"/>
-	<import addon="plugin.program.chrome.launcher" version="1.1.1"/>
+    <import addon="plugin.program.chrome.launcher"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
 	<provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
-    <summary lang="en">Starz Play Video Streaming</summary>
+    <summary lang="en">Starz Play Video Browsing and Playing</summary>
     <description lang="en">Movies and Television Shows for Starz Subscribers. This plugin allows you to browse and export to local library the movies and original series available on Starz Play. Viewing is done through the browser via Chrome Launcher plugin.</description>
-    <disclaimer>Some parts of this addon may not be legal in your country of residence - please check with your local laws before installing.</disclaimer>
+    <disclaimer>A Starz Play subscription is required.</disclaimer>
   </extension>
 </addon>

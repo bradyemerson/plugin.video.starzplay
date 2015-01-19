@@ -6,7 +6,6 @@ import urllib
 import xbmcplugin
 import xbmc
 import xbmcgui
-import xbmcaddon
 import common
 import database_movies as movies_db
 import database_common
@@ -124,7 +123,7 @@ def list_movies(export=False, genrefilter=False, actorfilter=False, directorfilt
     if export:
         import xbmclibrary
 
-        xbmclibrary.setup_library()
+        added_folders = xbmclibrary.setup_library()
 
     movies = movies_db.get_movies(genrefilter=genrefilter, actorfilter=actorfilter, directorfilter=directorfilter,
                                  studiofilter=studiofilter, yearfilter=yearfilter, mpaafilter=mpaafilter,
@@ -138,9 +137,7 @@ def list_movies(export=False, genrefilter=False, actorfilter=False, directorfilt
             _add_movie_item(moviedata, total)
 
     if export:
-        common.notification('Export Complete')
-        if common.get_setting('updatelibraryafterexport') == 'true':
-            xbmclibrary.update_xbmc_library()
+        xbmclibrary.complete_export(added_folders)
 
     else:
         xbmcplugin.setContent(pluginhandle, 'Movies')
@@ -220,8 +217,7 @@ def _add_movie_item(data, total=0):
         cm_u = sys.argv[0] + '?url={0}&mode=movies&sitemode=watch'.format(data['content_id'])
         contextmenu.append(('Mark as watched', 'XBMC.RunPlugin(%s)' % cm_u))
 
-    cm_u = sys.argv[0] + '?url={0}&mode=movies&sitemode=display_cast'.format(data['content_id'])
-    contextmenu.append(('View cast', 'XBMC.RunPlugin(%s)' % cm_u))
+    contextmenu.append(('Movie Information', 'XBMC.Action(Info)'))
 
     item.addContextMenuItems(contextmenu)
 
@@ -233,19 +229,11 @@ def _add_movie_item(data, total=0):
 def play_movie():
     url = common.args.url
     content_id = int(common.args.content_id)
-    kiosk = 'true'
 
-    item = xbmcgui.ListItem()
     if movies_db.watch(content_id) > 0:
         common.refresh_menu()
-        xbmc.executebuiltin("RunPlugin(plugin://plugin.program.chrome.launcher/?url=" + urllib.quote_plus(
-            url) + "&mode=showSite&kiosk=" + kiosk + ")")
 
-        # We assume the URL is still valid if it's in our database
-        xbmcplugin.setResolvedUrl(common.pluginHandle, True, item)
-
-    else:
-        xbmcplugin.setResolvedUrl(common.pluginHandle, False, item)
+    common.play_url(url)
 
 
 ##########################################
@@ -253,18 +241,6 @@ def play_movie():
 ##########################################
 def refresh_db():
     movies_db.update_movies(True)
-
-
-def display_cast():
-    content_id = common.args.url
-    movie = movies_db.get_movie(content_id).fetchone()
-
-    actors = 'Not available'
-    if movie['actors']:
-        actors = ', '.join(movie['actors'].split(','))
-
-    dialog = xbmcgui.Dialog()
-    dialog.ok(movie['title'] + ' Cast', actors)
 
 
 def favor():

@@ -1,20 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import sys
+
 import resources.lib.common as common
 import resources.lib.listmovie as listmovie
 import resources.lib.listtv as listtv
-import os
-import sys
-import xbmc
-import xbmcaddon
 import xbmcplugin
+
 
 pluginHandle = int(sys.argv[1])
 
-__plugin__ = 'Starz Play'
+__plugin__ = common.__addonname__
 __authors__ = 'bemerson'
 __credits__ = 'moneymaker, slices, zero'
-__version__ = '0.0.1'
+__version__ = common.__addonversion__
 
 def modes():
     if sys.argv[2] == '':

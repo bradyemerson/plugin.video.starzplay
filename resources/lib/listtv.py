@@ -94,7 +94,7 @@ def list_tvshows(export=False, mpaafilter=False, genrefilter=False, creatorfilte
     if export:
         import xbmclibrary
 
-        xbmclibrary.setup_library()
+        added_folders = xbmclibrary.setup_library()
 
     shows = tv_db.get_series(favorfilter=favorfilter).fetchall()
     total = len(shows)
@@ -106,9 +106,7 @@ def list_tvshows(export=False, mpaafilter=False, genrefilter=False, creatorfilte
             _add_series_item(showdata, total)
 
     if export:
-        common.notification('Export Complete')
-        if common.get_setting('updatelibraryafterexport') == 'true':
-            xbmclibrary.update_xbmc_library()
+        xbmclibrary.complete_export(added_folders)
 
     else:
         xbmcplugin.setContent(pluginhandle, 'tvshows')
@@ -128,12 +126,16 @@ def _add_series_item(data, total=0):
     fanart = database_common.get_thumb(data['content_id'])
     poster = database_common.get_poster(data['content_id'])
 
+    total_episodes = tv_db.get_series_episode_count(data['content_id'])
+    watched_episodes = tv_db.get_series_episode_count(data['content_id'], 'watched')
+    total_seasons = tv_db.get_series_season_count(data['content_id'])
+
     labels = {
         'title': data['title'],
         'tvshowtitle': data['title'],
         'plot': data['plot'],
         'studio': data['studio'],
-        'episode': tv_db.get_series_total_episodes(data['content_id']),
+        'episode': total_episodes,
         'year': tv_db.get_series_year(data['content_id']),
         'trailer': data['trailer']
     }
@@ -148,6 +150,11 @@ def _add_series_item(data, total=0):
     item = xbmcgui.ListItem(data['title'], iconImage=poster, thumbnailImage=poster)
     item.setInfo(type='Video', infoLabels=labels)
     item.setProperty('fanart_image', fanart)
+    item.setProperty('TVShowThumb', poster)
+    item.setProperty('TotalSeasons', str(total_seasons))
+    item.setProperty('TotalEpisodes', str(total_episodes))
+    item.setProperty('WatchedEpisodes', str(watched_episodes))
+    item.setProperty('UnWatchedEpisodes', str(total_episodes - watched_episodes))
 
     contextmenu = []
     if data['favor']:
@@ -165,6 +172,8 @@ def _add_series_item(data, total=0):
         cm_u = sys.argv[0] + '?url={0}&mode=tv&sitemode=play_trailer&title={1}&series_id={2}'.format(
             data['trailer'], data['title'], data['content_id'])
         contextmenu.append(('Play trailer', 'XBMC.RunPlugin(%s)' % cm_u))
+
+    contextmenu.append(('TV Show Information', 'XBMC.Action(Info)'))
 
     item.addContextMenuItems(contextmenu)
 
@@ -195,12 +204,15 @@ def _add_season_item(data, total=0):
     fanart = database_common.get_thumb(data['series_content_id'])
     poster = database_common.get_poster(data['series_content_id'])
 
+    total_episodes = tv_db.get_season_episode_count(data['series_content_id'])
+    watched_episodes = tv_db.get_season_episode_count(data['series_content_id'], 'watched')
+
     labels = {
         'title': data['title'],
         'tvshowtitle': data['series_title'],
         'studio': data['studio'],
         'season': data['order_rank'],
-        'episode': tv_db.get_season_total_episodes(data['series_content_id']),
+        'episode': total_episodes,
         'year': tv_db.get_season_year(data['content_id'])
     }
 
@@ -214,6 +226,10 @@ def _add_season_item(data, total=0):
     item = xbmcgui.ListItem(data['title'], iconImage=poster, thumbnailImage=poster)
     item.setInfo(type='Video', infoLabels=labels)
     item.setProperty('fanart_image', fanart)
+    item.setProperty('TVShowThumb', poster)
+    item.setProperty('TotalEpisodes', str(total_episodes))
+    item.setProperty('WatchedEpisodes', str(watched_episodes))
+    item.setProperty('UnWatchedEpisodes', str(total_episodes - watched_episodes))
 
     u = sys.argv[0] + '?url={0}&mode=tv&sitemode=list_episodes'.format(data['content_id'])
     xbmcplugin.addDirectoryItem(pluginhandle, url=u, listitem=item, isFolder=True, totalItems=total)
@@ -267,6 +283,7 @@ def _add_episode_item(data, total):
     item = xbmcgui.ListItem(data['title'], data['mpaa'], iconImage=fanart, thumbnailImage=fanart)
     item.setInfo(type='Video', infoLabels=labels)
     item.setProperty('fanart_image', fanart)
+    item.setProperty('TVShowThumb', poster)
 
     try:
         if data['is_hd']:
@@ -294,6 +311,8 @@ def _add_episode_item(data, total):
         cm_u = sys.argv[0] + '?url={0}&mode=tv&sitemode=watch_episode'.format(data['content_id'])
         contextmenu.append(('Mark as watched', 'XBMC.RunPlugin(%s)' % cm_u))
 
+    contextmenu.append(('Episode Information', 'XBMC.Action(Info)'))
+
     item.addContextMenuItems(contextmenu)
 
     play_url = database_common.get_play_url(data['media_id'])
@@ -305,19 +324,11 @@ def _add_episode_item(data, total):
 def play_movie():
     url = common.args.url
     content_id = int(common.args.content_id)
-    kiosk = 'true'
 
-    item = xbmcgui.ListItem()
     if tv_db.watch_episode(content_id) > 0:
         common.refresh_menu()
-        xbmc.executebuiltin("RunPlugin(plugin://plugin.program.chrome.launcher/?url=" + urllib.quote_plus(
-            url) + "&mode=showSite&kiosk=" + kiosk + ")")
 
-        # We assume the URL is still valid if it's in our database
-        xbmcplugin.setResolvedUrl(common.pluginHandle, True, item)
-
-    else:
-        xbmcplugin.setResolvedUrl(common.pluginHandle, False, item)
+    common.play_url(url)
 
 
 ##########################################

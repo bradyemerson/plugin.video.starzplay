@@ -1,7 +1,7 @@
 <settings>
 	<!-- General -->
 	<category label="30000">
-		<setting label="30040" id="watchlist_tv_view" type ="enum" values="Season|Show" default="0"/>
+		<setting label="30040" type="bool" id="usekioskmode" default="true"/>
 		<setting type="sep" />
 	</category>
 	<!-- Library -->
